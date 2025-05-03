@@ -14,17 +14,10 @@ namespace BackEndGasApp.Dtos.User
 
         [JsonIgnore]
         public string PasswordHash { get; set; } = string.Empty;
-        public string PhoneNumber { get; set; } = string.Empty;
 
-        // public string UserRole { get; set; } = string.Empty;
         [JsonIgnore]
         public ICollection<RoleDto> Roles { get; set; }
         public ICollection<string> Role { get; set; }
-
         public string Token { get; set; }
-
-        // public ICollection<zGender> zGenders { get; set; }
-        public int zGenderId { get; set; }
-        public string zGenderName { get; set; }
     }
 }

@@ -2,9 +2,8 @@
   "routes": {
     "/": {},
     "/admin/login": {},
-    "/grave/management": {},
+    "/colors": {},
     "/login": {},
-    "/story": {},
     "/unauthorized": {}
   }
 }

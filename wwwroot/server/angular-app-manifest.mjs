@@ -10,60 +10,30 @@ export default {
     "route": "/"
   },
   {
-    "renderMode": 1,
-    "route": "/search/*"
-  },
-  {
     "renderMode": 2,
-    "route": "/story"
-  },
-  {
-    "renderMode": 1,
-    "route": "/ar-view"
+    "preload": [
+      "chunk-TEI5ASX3.js"
+    ],
+    "route": "/colors"
   },
   {
     "renderMode": 2,
     "preload": [
-      "chunk-ULQJZWJQ.js"
+      "chunk-NYALMEPK.js"
     ],
     "route": "/login"
   },
   {
     "renderMode": 2,
     "preload": [
-      "chunk-ULQJZWJQ.js"
+      "chunk-NYALMEPK.js"
     ],
     "route": "/admin/login"
   },
   {
     "renderMode": 2,
     "preload": [
-      "chunk-6WEHRBKK.js"
-    ],
-    "route": "/grave/management"
-  },
-  {
-    "renderMode": 1,
-    "preload": [
-      "chunk-4FKRRPKJ.js"
-    ],
-    "route": "/grave/management/new"
-  },
-  {
-    "renderMode": 1,
-    "preload": [
-      "chunk-4FKRRPKJ.js"
-    ],
-    "route": "/grave/edit/*"
-  },
-  {
-    "renderMode": 1,
-    "route": "/grave/*"
-  },
-  {
-    "renderMode": 2,
-    "preload": [
-      "chunk-OQQXUETP.js"
+      "chunk-SNSRYH6V.js"
     ],
     "route": "/unauthorized"
   },
@@ -75,14 +45,13 @@ export default {
 ],
   entryPointToBrowserMapping: undefined,
   assets: {
-    'index.csr.html': {size: 13892, hash: 'e19bdc46c47565c7ebab575397960956053474c3ee1be74ebe785e14d4223257', text: () => import('./assets-chunks/index_csr_html.mjs').then(m => m.default)},
-    'index.server.html': {size: 5222, hash: '018c0f6c5ac75d8b11c3a33bdbe51fa5dd29e8e8fd816b465aef759f15a37671', text: () => import('./assets-chunks/index_server_html.mjs').then(m => m.default)},
-    'story/index.html': {size: 65794, hash: '64d82425c33b7b3c665ca2270a8aacc97e49d96e9d454f3919bb701ccdda504c', text: () => import('./assets-chunks/story_index_html.mjs').then(m => m.default)},
-    'login/index.html': {size: 61955, hash: '06c3ad403c6982b8a1fdbbfc9297091a862db7573df9b8390d4e61d872acae85', text: () => import('./assets-chunks/login_index_html.mjs').then(m => m.default)},
-    'admin/login/index.html': {size: 61955, hash: '06c3ad403c6982b8a1fdbbfc9297091a862db7573df9b8390d4e61d872acae85', text: () => import('./assets-chunks/admin_login_index_html.mjs').then(m => m.default)},
-    'grave/management/index.html': {size: 61955, hash: 'd651c52c5ab861b296fd8254e2fd54eec80a20deb0c958a97abf49613653d203', text: () => import('./assets-chunks/grave_management_index_html.mjs').then(m => m.default)},
-    'unauthorized/index.html': {size: 56593, hash: 'e6f9237a3ccaf11d7038faad2f60c1e0e5012b2ebc833de7f701b1e17f8bd37a', text: () => import('./assets-chunks/unauthorized_index_html.mjs').then(m => m.default)},
-    'index.html': {size: 58546, hash: '118cfe7510e7ab7a3cf16aa23df3ebdfa74b0576744646a3fca07e15e5c3b5fd', text: () => import('./assets-chunks/index_html.mjs').then(m => m.default)},
-    'styles-WSREB2OI.css': {size: 53331, hash: 'Tx/Oh6gG52o', text: () => import('./assets-chunks/styles-WSREB2OI_css.mjs').then(m => m.default)}
+    'index.csr.html': {size: 12070, hash: '60077d4eff0481646f92d24ccef64f40f58cceb64f726ff48b5579792ef6475d', text: () => import('./assets-chunks/index_csr_html.mjs').then(m => m.default)},
+    'index.server.html': {size: 5069, hash: '74581a9edfe928e81128e69ddc9336e3ac943fdaf527621b2fb24435e889160a', text: () => import('./assets-chunks/index_server_html.mjs').then(m => m.default)},
+    'admin/login/index.html': {size: 56636, hash: '9b802133daa4ed836d51a74e5b339e0aee8f323b9b3495f47751691a7d8ab743', text: () => import('./assets-chunks/admin_login_index_html.mjs').then(m => m.default)},
+    'index.html': {size: 56769, hash: '2d3e6f365b8612f9548cefd4366821859c9ecc269de6ee6c21de591c75336b87', text: () => import('./assets-chunks/index_html.mjs').then(m => m.default)},
+    'login/index.html': {size: 56636, hash: '9b802133daa4ed836d51a74e5b339e0aee8f323b9b3495f47751691a7d8ab743', text: () => import('./assets-chunks/login_index_html.mjs').then(m => m.default)},
+    'colors/index.html': {size: 58761, hash: '074ebaad4eb8e891995d12c3b871bdf91ffaa21e90da97a8f2392c52c8594ab3', text: () => import('./assets-chunks/colors_index_html.mjs').then(m => m.default)},
+    'unauthorized/index.html': {size: 50718, hash: '15a7d2ca334019e890ab6b8865d8603f9a338a41e3ec282a15478b3d8c065ebb', text: () => import('./assets-chunks/unauthorized_index_html.mjs').then(m => m.default)},
+    'styles-CWCGAFOA.css': {size: 40814, hash: 'fvdkDbBA6Cs', text: () => import('./assets-chunks/styles-CWCGAFOA_css.mjs').then(m => m.default)}
   },
 };
