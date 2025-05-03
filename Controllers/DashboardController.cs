@@ -82,5 +82,23 @@ namespace BackEndGasApp.Controllers
                 
             return Ok(response);
         }
+        
+        [HttpGet("export")]
+        public async Task<IActionResult> ExportDashboardData([FromQuery] DashboardFilterDto filter, [FromQuery] string format)
+        {
+            if (string.IsNullOrEmpty(format) || (format.ToLower() != "pdf" && format.ToLower() != "excel"))
+            {
+                return BadRequest(new { Success = false, Message = "Format must be 'pdf' or 'excel'" });
+            }
+            
+            var response = await _dashboardService.ExportDashboardData(filter ?? new DashboardFilterDto(), format.ToLower());
+            if (!response.Success)
+                return BadRequest(response);
+            
+            string contentType = format.ToLower() == "pdf" ? "application/pdf" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            string fileName = $"Dashboard_Export_{DateTime.Now:yyyyMMddHHmmss}.{(format.ToLower() == "pdf" ? "pdf" : "xlsx")}";
+            
+            return File(response.Data, contentType, fileName);
+        }
     }
 }
