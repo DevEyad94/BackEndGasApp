@@ -13,5 +13,6 @@ namespace BackEndGasApp.Services.DashboardService
         Task<ServiceResponse<List<MaintenanceCostChartDto>>> GetMaintenanceCostChart(DashboardFilterDto filter);
         Task<ServiceResponse<List<RegionDistributionDto>>> GetRegionDistribution(DashboardFilterDto filter);
         Task<ServiceResponse<List<FieldDataDto>>> GetFieldData(DashboardFilterDto filter);
+        Task<ServiceResponse<FieldDashboardDto>> GetDashboardByField(int fieldId);
     }
 } 

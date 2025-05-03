@@ -26,6 +26,19 @@ namespace BackEndGasApp.Services.DashboardService
             {
                 var dashboard = new DashboardResponseDto();
                 
+                // Check if we have a specific field ID filter
+                if (filter.FieldId.HasValue)
+                {
+                    // Verify field exists
+                    var field = await _context.zFields.FirstOrDefaultAsync(f => f.zFieldId == filter.FieldId.Value);
+                    if (field == null)
+                    {
+                        response.Success = false;
+                        response.Message = $"Field with ID {filter.FieldId.Value} not found.";
+                        return response;
+                    }
+                }
+                
                 // Get production rate data
                 var productionRateResponse = await GetProductionRateChart(filter);
                 if (productionRateResponse.Success)
@@ -50,9 +63,71 @@ namespace BackEndGasApp.Services.DashboardService
                 dashboard.TotalProductionRate = dashboard.FieldData.Sum(f => f.ProductionRate);
                 dashboard.TotalMaintenanceCost = dashboard.FieldData.Sum(f => f.MaintenanceCost);
                 
+                // Set appropriate message based on filter
+                string message = "Dashboard data retrieved successfully.";
+                if (filter.FieldId.HasValue)
+                {
+                    var fieldName = dashboard.FieldData.FirstOrDefault(f => f.FieldId == filter.FieldId.Value)?.FieldName;
+                    message = $"Dashboard data for field '{fieldName ?? filter.FieldId.Value.ToString()}' retrieved successfully.";
+                }
+                
                 response.Data = dashboard;
                 response.Success = true;
-                response.Message = "Dashboard data retrieved successfully.";
+                response.Message = message;
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+            }
+            
+            return response;
+        }
+
+        public async Task<ServiceResponse<FieldDashboardDto>> GetDashboardByField(int fieldId)
+        {
+            var response = new ServiceResponse<FieldDashboardDto>();
+            
+            try
+            {
+                // Create filter with field ID
+                var filter = new DashboardFilterDto { FieldId = fieldId };
+                
+                var field = await _context.zFields
+                    .FirstOrDefaultAsync(f => f.zFieldId == fieldId);
+                    
+                if (field == null)
+                {
+                    response.Success = false;
+                    response.Message = $"Field with ID {fieldId} not found.";
+                    return response;
+                }
+                
+                var dashboard = new FieldDashboardDto
+                {
+                    FieldId = field.zFieldId,
+                    FieldName = field.Name,
+                    Latitude = (double)field.Latitude,
+                    Longitude = (double)field.Longitude
+                };
+                
+                // Get production rate data
+                var productionRateResponse = await GetProductionRateChart(filter);
+                if (productionRateResponse.Success)
+                    dashboard.ProductionRateChart = productionRateResponse.Data;
+                
+                // Get maintenance cost data
+                var maintenanceCostResponse = await GetMaintenanceCostChart(filter);
+                if (maintenanceCostResponse.Success)
+                    dashboard.MaintenanceCostChart = maintenanceCostResponse.Data;
+                
+                // Calculate totals
+                dashboard.TotalProductionRate = dashboard.ProductionRateChart?.Sum(p => p.ProductionRate) ?? 0;
+                dashboard.TotalMaintenanceCost = dashboard.MaintenanceCostChart?.Sum(m => m.Cost) ?? 0;
+                
+                response.Data = dashboard;
+                response.Success = true;
+                response.Message = $"Dashboard data for field '{field.Name}' retrieved successfully.";
             }
             catch (Exception ex)
             {
@@ -161,7 +236,15 @@ namespace BackEndGasApp.Services.DashboardService
             {
                 // For now, we'll just count fields per region
                 // In a real application, you might have a region property on the field model
-                var fieldData = await _context.zFields
+                var query = _context.zFields.AsQueryable();
+                
+                // Apply field ID filter if provided
+                if (filter.FieldId.HasValue)
+                {
+                    query = query.Where(f => f.zFieldId == filter.FieldId.Value);
+                }
+                
+                var fieldData = await query
                     .Select(f => new { f.zFieldId, RegionName = "Default Region" }) // Replace with actual region data if available
                     .GroupBy(f => f.RegionName)
                     .Select(g => new RegionDistributionDto
@@ -215,9 +298,16 @@ namespace BackEndGasApp.Services.DashboardService
                 var fieldIds = productionFieldIds.Union(maintenanceFieldIds).Distinct().ToList();
                 
                 // Get field data for these IDs
-                var fields = await _context.zFields
-                    .Where(f => fieldIds.Contains(f.zFieldId))
-                    .ToListAsync();
+                var fieldsQuery = _context.zFields
+                    .Where(f => fieldIds.Contains(f.zFieldId));
+                
+                // If field ID filter is directly provided, apply it
+                if (filter.FieldId.HasValue && !fieldIds.Contains(filter.FieldId.Value))
+                {
+                    fieldsQuery = fieldsQuery.Union(_context.zFields.Where(f => f.zFieldId == filter.FieldId.Value));
+                }
+                
+                var fields = await fieldsQuery.ToListAsync();
                 
                 var result = new List<FieldDataDto>();
                 
@@ -234,7 +324,7 @@ namespace BackEndGasApp.Services.DashboardService
                         .OrderByDescending(m => m.FieldMaintenanceDate)
                         .FirstOrDefaultAsync();
                     
-                    if (latestProduction != null || latestMaintenance != null)
+                    if (latestProduction != null || latestMaintenance != null || filter.FieldId.HasValue)
                     {
                         result.Add(new FieldDataDto
                         {
@@ -280,6 +370,9 @@ namespace BackEndGasApp.Services.DashboardService
                 
             if (filter.ToYear.HasValue)
                 query = query.Where(p => p.DateOfProduction.Year <= filter.ToYear.Value);
+                
+            if (filter.FieldId.HasValue)
+                query = query.Where(p => p.zFieldId == filter.FieldId.Value);
         }
         
         private void ApplyFieldMaintenanceFilters(ref IQueryable<FieldMaintenance> query, DashboardFilterDto filter)
@@ -298,6 +391,9 @@ namespace BackEndGasApp.Services.DashboardService
                 
             if (filter.ToYear.HasValue)
                 query = query.Where(m => m.FieldMaintenanceDate.Year <= filter.ToYear.Value);
+                
+            if (filter.FieldId.HasValue)
+                query = query.Where(m => m.zFieldId == filter.FieldId.Value);
         }
     }
 } 

@@ -72,5 +72,15 @@ namespace BackEndGasApp.Controllers
                 
             return Ok(response);
         }
+        
+        [HttpGet("field/{fieldId}")]
+        public async Task<IActionResult> GetDashboardByField(int fieldId, [FromQuery] DashboardFilterDto filter)
+        {
+            var response = await _dashboardService.GetDashboardByField(fieldId);
+            if (!response.Success)
+                return BadRequest(response);
+                
+            return Ok(response);
+        }
     }
 }

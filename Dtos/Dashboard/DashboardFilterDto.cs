@@ -13,5 +13,6 @@ namespace BackEndGasApp.Dtos.Dashboard
         public int? MaintenanceTypeId { get; set; }
         public decimal? MinCost { get; set; }
         public decimal? MaxCost { get; set; }
+        public int? FieldId { get; set; }
     }
 } 
