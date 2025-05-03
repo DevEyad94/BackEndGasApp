@@ -1,0 +1,27 @@
+[
+  {
+    "zMaintenanceTypeId": 1,
+    "Name": "Maintenance Type 1",
+    "Code": "M1"
+  },
+  {
+    "zMaintenanceTypeId": 2,
+    "Name": "Maintenance Type 2",
+    "Code": "M2"
+  },
+  {
+    "zMaintenanceTypeId": 3,
+    "Name": "Maintenance Type 3",
+    "Code": "M3"
+  },
+  {
+    "zMaintenanceTypeId": 4,
+    "Name": "Maintenance Type 4",
+    "Code": "M4"
+  },
+  {
+    "zMaintenanceTypeId": 5,
+    "Name": "Maintenance Type 5",
+    "Code": "M5"
+  }
+]

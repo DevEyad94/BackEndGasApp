@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/core/enum/grave-type.enum.ts"],
+  "sourcesContent": ["export enum GraveType {\n  WellKnown = 1,\n  Unknown = 2,\n  Old = 3,\n}\n"],
+  "mappings": ";AAAA,IAAYA,EAAZ,SAAYA,EAAS,CACnBA,OAAAA,EAAAA,EAAA,UAAA,CAAA,EAAA,YACAA,EAAAA,EAAA,QAAA,CAAA,EAAA,UACAA,EAAAA,EAAA,IAAA,CAAA,EAAA,MAHUA,CAIZ,EAJYA,GAAS,CAAA,CAAA",
+  "names": ["GraveType"]
+}

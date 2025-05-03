@@ -1,0 +1,62 @@
+[
+  {
+    "zFieldId": 1,
+    "Name": "Wusta",
+    "Latitude": 21.12346,
+    "Longitude": 55.12345
+  },
+  {
+    "zFieldId": 2,
+    "Name": "North Oman",
+    "Latitude": 22.65432,
+    "Longitude": 56.65432
+  },
+  {
+    "zFieldId": 3,
+    "Name": "South Block",
+    "Latitude": 20.98765,
+    "Longitude": 54.98765
+  },
+  {
+    "zFieldId": 4,
+    "Name": "West Basin",
+    "Latitude": 23.45679,
+    "Longitude": 57.12345
+  },
+  {
+    "zFieldId": 5,
+    "Name": "Central Field",
+    "Latitude": 22.12346,
+    "Longitude": 55.65432
+  },
+  {
+    "zFieldId": 6,
+    "Name": "Desert Zone",
+    "Latitude": 19.98765,
+    "Longitude": 53.98765
+  },
+  {
+    "zFieldId": 7,
+    "Name": "Offshore Block",
+    "Latitude": 20.65432,
+    "Longitude": 54.65432
+  },
+  {
+    "zFieldId": 8,
+    "Name": "Eastern Zone",
+    "Latitude": 21.98765,
+    "Longitude": 55.98765
+  },
+  {
+    "zFieldId": 9,
+    "Name": "South Field",
+    "Latitude": 22.12346,
+    "Longitude": 56.12345
+  },
+  {
+    "zFieldId": 10,
+    "Name": "Border Zone",
+    "Latitude": 23.65432,
+    "Longitude": 57.65432
+  }
+]

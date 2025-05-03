@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/components/grave-search/grave-search.component.scss", "src/app/components/grave-search/grave-search.component.scss"],
+  "sourcesContent": ["// Styling for arabic green color (assuming this is defined in your theme)\n:host {\n  display: block;\n}\n\n// Additional styling for focus states\ninput:focus, button:focus {\n  outline: none;\n}\n\n// Hover effects for cards\n.bg-gray-50:hover {\n  transform: translateY(-2px);\n}\n", ":host {\n  display: block;\n}\n\ninput:focus, button:focus {\n  outline: none;\n}\n\n.bg-gray-50:hover {\n  transform: translateY(-2px);\n}\n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJmaWxlOi8vL1VzZXJzL2V5YWQuYWxoYW16YS5sb2NhbC9Eb2N1bWVudHMvUHJvamVjdHMvUGVyc29uYWwlMjBQcm9qZWN0cy9HcmF2ZU5ldy9zcmMvYXBwL2NvbXBvbmVudHMvZ3JhdmUtc2VhcmNoL2dyYXZlLXNlYXJjaC5jb21wb25lbnQuc2NzcyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFDQTtFQUNFOzs7QUFJRjtFQUNFOzs7QUFJRjtFQUNFIiwic291cmNlc0NvbnRlbnQiOlsiLy8gU3R5bGluZyBmb3IgYXJhYmljIGdyZWVuIGNvbG9yIChhc3N1bWluZyB0aGlzIGlzIGRlZmluZWQgaW4geW91ciB0aGVtZSlcbjpob3N0IHtcbiAgZGlzcGxheTogYmxvY2s7XG59XG5cbi8vIEFkZGl0aW9uYWwgc3R5bGluZyBmb3IgZm9jdXMgc3RhdGVzXG5pbnB1dDpmb2N1cywgYnV0dG9uOmZvY3VzIHtcbiAgb3V0bGluZTogbm9uZTtcbn1cblxuLy8gSG92ZXIgZWZmZWN0cyBmb3IgY2FyZHNcbi5iZy1ncmF5LTUwOmhvdmVyIHtcbiAgdHJhbnNmb3JtOiB0cmFuc2xhdGVZKC0ycHgpO1xufVxuIl19 */"],
+  "mappings": "AACA,MACE,QAAA,KCAF,CDIA,KAAA,OAAA,MAAA,OACE,QAAA,ICDF,CDKA,CAAA,UAAA,OACE,UAAA,WAAA,KCFF",
+  "names": []
+}
