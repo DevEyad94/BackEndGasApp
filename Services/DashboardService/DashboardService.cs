@@ -14,6 +14,7 @@ using iText.Layout.Element;
 using iText.Layout.Properties;
 using iText.Kernel.Font;
 using iText.IO.Font.Constants;
+using iText.Kernel.Pdf.Canvas.Parser;
 
 namespace BackEndGasApp.Services.DashboardService
 {
@@ -425,14 +426,46 @@ namespace BackEndGasApp.Services.DashboardService
                     return response;
                 }
                 
+                // Validate we have data to export
+                if (dashboardResponse.Data == null || 
+                    (dashboardResponse.Data.FieldData?.Count == 0 && 
+                     dashboardResponse.Data.ProductionRateChart?.Count == 0 && 
+                     dashboardResponse.Data.MaintenanceCostChart?.Count == 0 &&
+                     dashboardResponse.Data.RegionDistribution?.Count == 0))
+                {
+                    response.Success = false;
+                    response.Message = "No data available to export.";
+                    return response;
+                }
+                
                 // Generate the appropriate file format
                 if (format == "pdf")
                 {
-                    response.Data = GeneratePdfReport(dashboardResponse.Data);
+                    try
+                    {
+                        response.Data = GeneratePdfReport(dashboardResponse.Data);
+                    }
+                    catch (Exception pdfEx)
+                    {
+                        response.Success = false;
+                        response.Message = $"Error generating PDF: {pdfEx.Message}";
+                        Console.WriteLine($"PDF Generation Error Details: {pdfEx}");
+                        return response;
+                    }
                 }
                 else if (format == "excel")
                 {
-                    response.Data = GenerateExcelReport(dashboardResponse.Data);
+                    try
+                    {
+                        response.Data = GenerateExcelReport(dashboardResponse.Data);
+                    }
+                    catch (Exception excelEx)
+                    {
+                        response.Success = false;
+                        response.Message = $"Error generating Excel file: {excelEx.Message}";
+                        Console.WriteLine($"Excel Generation Error Details: {excelEx}");
+                        return response;
+                    }
                 }
                 else
                 {
@@ -448,6 +481,7 @@ namespace BackEndGasApp.Services.DashboardService
             {
                 response.Success = false;
                 response.Message = $"Failed to export dashboard data: {ex.Message}";
+                Console.WriteLine($"Export Error Details: {ex}");
             }
             
             return response;
@@ -455,229 +489,312 @@ namespace BackEndGasApp.Services.DashboardService
         
         private byte[] GeneratePdfReport(DashboardResponseDto dashboard)
         {
-            using (var memoryStream = new MemoryStream())
+            try
             {
-                var writer = new PdfWriter(memoryStream);
-                var pdf = new PdfDocument(writer);
-                var document = new Document(pdf);
-                
-                // Get a bold font
-                PdfFont boldFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
-                
-                // Add title
-                document.Add(new Paragraph("Dashboard Report")
-                    .SetTextAlignment(TextAlignment.CENTER)
-                    .SetFontSize(20));
-                
-                document.Add(new Paragraph($"Generated on: {DateTime.Now}")
-                    .SetTextAlignment(TextAlignment.RIGHT)
-                    .SetFontSize(10));
-                
-                document.Add(new Paragraph("Summary")
-                    .SetTextAlignment(TextAlignment.LEFT)
-                    .SetFontSize(16)
-                    .SetFont(boldFont));
-                
-                // Add summary data
-                document.Add(new Paragraph($"Total Production Rate: {dashboard.TotalProductionRate} bbl/day")
-                    .SetTextAlignment(TextAlignment.LEFT)
-                    .SetFontSize(12));
-                
-                document.Add(new Paragraph($"Total Maintenance Cost: ${dashboard.TotalMaintenanceCost}")
-                    .SetTextAlignment(TextAlignment.LEFT)
-                    .SetFontSize(12));
-                
-                // Add field data table
-                document.Add(new Paragraph("Field Data")
-                    .SetTextAlignment(TextAlignment.LEFT)
-                    .SetFontSize(16)
-                    .SetFont(boldFont));
-                
-                var table = new Table(5).UseAllAvailableWidth();
-                table.AddHeaderCell("Field Name");
-                table.AddHeaderCell("Latitude");
-                table.AddHeaderCell("Longitude");
-                table.AddHeaderCell("Production Rate (bbl/day)");
-                table.AddHeaderCell("Maintenance Cost ($)");
-                
-                foreach (var field in dashboard.FieldData)
+                using (var memoryStream = new MemoryStream())
                 {
-                    table.AddCell(field.FieldName);
-                    table.AddCell(field.Latitude.ToString());
-                    table.AddCell(field.Longitude.ToString());
-                    table.AddCell(field.ProductionRate.ToString());
-                    table.AddCell(field.MaintenanceCost.ToString());
+                    // Create PDF writer with standard settings
+                    var writer = new PdfWriter(memoryStream);
+                    var pdf = new PdfDocument(writer);
+                    var document = new Document(pdf);
+                    
+                    // Get a bold font
+                    PdfFont boldFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+                    PdfFont regularFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
+                    
+                    // Add title
+                    document.Add(new Paragraph("Dashboard Report")
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetFontSize(20));
+                    
+                    document.Add(new Paragraph($"Generated on: {DateTime.Now}")
+                        .SetTextAlignment(TextAlignment.RIGHT)
+                        .SetFontSize(10));
+                    
+                    document.Add(new Paragraph("Summary")
+                        .SetTextAlignment(TextAlignment.LEFT)
+                        .SetFontSize(16)
+                        .SetFont(boldFont));
+                    
+                    // Add summary data
+                    document.Add(new Paragraph($"Total Production Rate: {dashboard.TotalProductionRate} bbl/day")
+                        .SetTextAlignment(TextAlignment.LEFT)
+                        .SetFontSize(12)
+                        .SetFont(regularFont));
+                    
+                    document.Add(new Paragraph($"Total Maintenance Cost: ${dashboard.TotalMaintenanceCost}")
+                        .SetTextAlignment(TextAlignment.LEFT)
+                        .SetFontSize(12)
+                        .SetFont(regularFont));
+                    
+                    // Add field data table
+                    document.Add(new Paragraph("Field Data")
+                        .SetTextAlignment(TextAlignment.LEFT)
+                        .SetFontSize(16)
+                        .SetFont(boldFont));
+                    
+                    if (dashboard.FieldData.Any())
+                    {
+                        var table = new Table(5).UseAllAvailableWidth();
+                        table.AddHeaderCell(new Cell().Add(new Paragraph("Field Name").SetFont(boldFont)));
+                        table.AddHeaderCell(new Cell().Add(new Paragraph("Latitude").SetFont(boldFont)));
+                        table.AddHeaderCell(new Cell().Add(new Paragraph("Longitude").SetFont(boldFont)));
+                        table.AddHeaderCell(new Cell().Add(new Paragraph("Production Rate (bbl/day)").SetFont(boldFont)));
+                        table.AddHeaderCell(new Cell().Add(new Paragraph("Maintenance Cost ($)").SetFont(boldFont)));
+                        
+                        foreach (var field in dashboard.FieldData)
+                        {
+                            table.AddCell(new Cell().Add(new Paragraph(field.FieldName).SetFont(regularFont)));
+                            table.AddCell(new Cell().Add(new Paragraph(field.Latitude.ToString()).SetFont(regularFont)));
+                            table.AddCell(new Cell().Add(new Paragraph(field.Longitude.ToString()).SetFont(regularFont)));
+                            table.AddCell(new Cell().Add(new Paragraph(field.ProductionRate.ToString()).SetFont(regularFont)));
+                            table.AddCell(new Cell().Add(new Paragraph(field.MaintenanceCost.ToString()).SetFont(regularFont)));
+                        }
+                        
+                        document.Add(table);
+                    }
+                    else
+                    {
+                        document.Add(new Paragraph("No field data available.").SetFont(regularFont));
+                    }
+                    
+                    // Add production rate chart data
+                    document.Add(new Paragraph("Production Rate by Period")
+                        .SetTextAlignment(TextAlignment.LEFT)
+                        .SetFontSize(16)
+                        .SetFont(boldFont));
+                    
+                    if (dashboard.ProductionRateChart.Any())
+                    {
+                        var productionTable = new Table(2).UseAllAvailableWidth();
+                        productionTable.AddHeaderCell(new Cell().Add(new Paragraph("Period").SetFont(boldFont)));
+                        productionTable.AddHeaderCell(new Cell().Add(new Paragraph("Production Rate (bbl/day)").SetFont(boldFont)));
+                        
+                        foreach (var data in dashboard.ProductionRateChart)
+                        {
+                            productionTable.AddCell(new Cell().Add(new Paragraph(data.Period).SetFont(regularFont)));
+                            productionTable.AddCell(new Cell().Add(new Paragraph(data.ProductionRate.ToString()).SetFont(regularFont)));
+                        }
+                        
+                        document.Add(productionTable);
+                    }
+                    else
+                    {
+                        document.Add(new Paragraph("No production rate data available.").SetFont(regularFont));
+                    }
+                    
+                    // Add maintenance cost chart data
+                    document.Add(new Paragraph("Maintenance Cost by Period")
+                        .SetTextAlignment(TextAlignment.LEFT)
+                        .SetFontSize(16)
+                        .SetFont(boldFont));
+                    
+                    if (dashboard.MaintenanceCostChart.Any())
+                    {
+                        var maintenanceTable = new Table(2).UseAllAvailableWidth();
+                        maintenanceTable.AddHeaderCell(new Cell().Add(new Paragraph("Period").SetFont(boldFont)));
+                        maintenanceTable.AddHeaderCell(new Cell().Add(new Paragraph("Maintenance Cost ($)").SetFont(boldFont)));
+                        
+                        foreach (var data in dashboard.MaintenanceCostChart)
+                        {
+                            maintenanceTable.AddCell(new Cell().Add(new Paragraph(data.Period).SetFont(regularFont)));
+                            maintenanceTable.AddCell(new Cell().Add(new Paragraph(data.Cost.ToString()).SetFont(regularFont)));
+                        }
+                        
+                        document.Add(maintenanceTable);
+                    }
+                    else
+                    {
+                        document.Add(new Paragraph("No maintenance cost data available.").SetFont(regularFont));
+                    }
+                    
+                    // Add region distribution
+                    document.Add(new Paragraph("Region Distribution")
+                        .SetTextAlignment(TextAlignment.LEFT)
+                        .SetFontSize(16)
+                        .SetFont(boldFont));
+                    
+                    if (dashboard.RegionDistribution.Any())
+                    {
+                        var regionTable = new Table(2).UseAllAvailableWidth();
+                        regionTable.AddHeaderCell(new Cell().Add(new Paragraph("Region").SetFont(boldFont)));
+                        regionTable.AddHeaderCell(new Cell().Add(new Paragraph("Field Count").SetFont(boldFont)));
+                        
+                        foreach (var data in dashboard.RegionDistribution)
+                        {
+                            regionTable.AddCell(new Cell().Add(new Paragraph(data.RegionName).SetFont(regularFont)));
+                            regionTable.AddCell(new Cell().Add(new Paragraph(data.FieldCount.ToString()).SetFont(regularFont)));
+                        }
+                        
+                        document.Add(regionTable);
+                    }
+                    else
+                    {
+                        document.Add(new Paragraph("No region distribution data available.").SetFont(regularFont));
+                    }
+                    
+                    // Explicitly flush and close everything
+                    document.Close();
+                    pdf.Close();
+                    writer.Close();
+                    
+                    // Return the PDF bytes
+                    return memoryStream.ToArray();
                 }
-                
-                document.Add(table);
-                
-                // Add production rate chart data
-                document.Add(new Paragraph("Production Rate by Period")
-                    .SetTextAlignment(TextAlignment.LEFT)
-                    .SetFontSize(16)
-                    .SetFont(boldFont));
-                
-                var productionTable = new Table(2).UseAllAvailableWidth();
-                productionTable.AddHeaderCell("Period");
-                productionTable.AddHeaderCell("Production Rate (bbl/day)");
-                
-                foreach (var data in dashboard.ProductionRateChart)
-                {
-                    productionTable.AddCell(data.Period);
-                    productionTable.AddCell(data.ProductionRate.ToString());
-                }
-                
-                document.Add(productionTable);
-                
-                // Add maintenance cost chart data
-                document.Add(new Paragraph("Maintenance Cost by Period")
-                    .SetTextAlignment(TextAlignment.LEFT)
-                    .SetFontSize(16)
-                    .SetFont(boldFont));
-                
-                var maintenanceTable = new Table(2).UseAllAvailableWidth();
-                maintenanceTable.AddHeaderCell("Period");
-                maintenanceTable.AddHeaderCell("Maintenance Cost ($)");
-                
-                foreach (var data in dashboard.MaintenanceCostChart)
-                {
-                    maintenanceTable.AddCell(data.Period);
-                    maintenanceTable.AddCell(data.Cost.ToString());
-                }
-                
-                document.Add(maintenanceTable);
-                
-                // Add region distribution
-                document.Add(new Paragraph("Region Distribution")
-                    .SetTextAlignment(TextAlignment.LEFT)
-                    .SetFontSize(16)
-                    .SetFont(boldFont));
-                
-                var regionTable = new Table(2).UseAllAvailableWidth();
-                regionTable.AddHeaderCell("Region");
-                regionTable.AddHeaderCell("Field Count");
-                
-                foreach (var data in dashboard.RegionDistribution)
-                {
-                    regionTable.AddCell(data.RegionName);
-                    regionTable.AddCell(data.FieldCount.ToString());
-                }
-                
-                document.Add(regionTable);
-                
-                document.Close();
-                return memoryStream.ToArray();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error generating PDF: {ex.Message}", ex);
             }
         }
         
         private byte[] GenerateExcelReport(DashboardResponseDto dashboard)
         {
-            using (var memoryStream = new MemoryStream())
+            try
             {
-                using (var package = new ExcelPackage(memoryStream))
+                using (var memoryStream = new MemoryStream())
                 {
-                    // Summary worksheet
-                    var summaryWorksheet = package.Workbook.Worksheets.Add("Summary");
-                    summaryWorksheet.Cells[1, 1].Value = "Dashboard Report";
-                    summaryWorksheet.Cells[1, 1].Style.Font.Size = 20;
-                    summaryWorksheet.Cells[1, 1].Style.Font.Bold = true;
-                    
-                    summaryWorksheet.Cells[2, 1].Value = $"Generated on: {DateTime.Now}";
-                    
-                    summaryWorksheet.Cells[4, 1].Value = "Total Production Rate:";
-                    summaryWorksheet.Cells[4, 2].Value = dashboard.TotalProductionRate;
-                    
-                    summaryWorksheet.Cells[5, 1].Value = "Total Maintenance Cost:";
-                    summaryWorksheet.Cells[5, 2].Value = dashboard.TotalMaintenanceCost;
-                    
-                    // Field data worksheet
-                    var fieldWorksheet = package.Workbook.Worksheets.Add("Field Data");
-                    fieldWorksheet.Cells[1, 1].Value = "Field Name";
-                    fieldWorksheet.Cells[1, 2].Value = "Latitude";
-                    fieldWorksheet.Cells[1, 3].Value = "Longitude";
-                    fieldWorksheet.Cells[1, 4].Value = "Production Rate (bbl/day)";
-                    fieldWorksheet.Cells[1, 5].Value = "Maintenance Cost ($)";
-                    
-                    // Style header row
-                    for (int i = 1; i <= 5; i++)
+                    using (var package = new ExcelPackage(memoryStream))
                     {
-                        fieldWorksheet.Cells[1, i].Style.Font.Bold = true;
+                        // Summary worksheet
+                        var summaryWorksheet = package.Workbook.Worksheets.Add("Summary");
+                        summaryWorksheet.Cells[1, 1].Value = "Dashboard Report";
+                        summaryWorksheet.Cells[1, 1].Style.Font.Size = 20;
+                        summaryWorksheet.Cells[1, 1].Style.Font.Bold = true;
+                        
+                        summaryWorksheet.Cells[2, 1].Value = $"Generated on: {DateTime.Now}";
+                        
+                        summaryWorksheet.Cells[4, 1].Value = "Total Production Rate:";
+                        summaryWorksheet.Cells[4, 2].Value = dashboard.TotalProductionRate;
+                        
+                        summaryWorksheet.Cells[5, 1].Value = "Total Maintenance Cost:";
+                        summaryWorksheet.Cells[5, 2].Value = dashboard.TotalMaintenanceCost;
+                        
+                        // Field data worksheet
+                        if (dashboard.FieldData.Any())
+                        {
+                            var fieldWorksheet = package.Workbook.Worksheets.Add("Field Data");
+                            fieldWorksheet.Cells[1, 1].Value = "Field Name";
+                            fieldWorksheet.Cells[1, 2].Value = "Latitude";
+                            fieldWorksheet.Cells[1, 3].Value = "Longitude";
+                            fieldWorksheet.Cells[1, 4].Value = "Production Rate (bbl/day)";
+                            fieldWorksheet.Cells[1, 5].Value = "Maintenance Cost ($)";
+                            
+                            // Style header row
+                            for (int i = 1; i <= 5; i++)
+                            {
+                                fieldWorksheet.Cells[1, i].Style.Font.Bold = true;
+                            }
+                            
+                            // Add field data
+                            for (int i = 0; i < dashboard.FieldData.Count; i++)
+                            {
+                                var field = dashboard.FieldData[i];
+                                fieldWorksheet.Cells[i + 2, 1].Value = field.FieldName;
+                                fieldWorksheet.Cells[i + 2, 2].Value = field.Latitude;
+                                fieldWorksheet.Cells[i + 2, 3].Value = field.Longitude;
+                                fieldWorksheet.Cells[i + 2, 4].Value = field.ProductionRate;
+                                fieldWorksheet.Cells[i + 2, 5].Value = field.MaintenanceCost;
+                            }
+                            
+                            fieldWorksheet.Cells[fieldWorksheet.Dimension.Address].AutoFitColumns();
+                        }
+                        else
+                        {
+                            var noDataWorksheet = package.Workbook.Worksheets.Add("Field Data");
+                            noDataWorksheet.Cells[1, 1].Value = "No field data available";
+                        }
+                        
+                        // Production rate worksheet
+                        if (dashboard.ProductionRateChart.Any())
+                        {
+                            var productionWorksheet = package.Workbook.Worksheets.Add("Production Rate");
+                            productionWorksheet.Cells[1, 1].Value = "Period";
+                            productionWorksheet.Cells[1, 2].Value = "Production Rate (bbl/day)";
+                            
+                            // Style header row
+                            productionWorksheet.Cells[1, 1].Style.Font.Bold = true;
+                            productionWorksheet.Cells[1, 2].Style.Font.Bold = true;
+                            
+                            // Add production rate data
+                            for (int i = 0; i < dashboard.ProductionRateChart.Count; i++)
+                            {
+                                var data = dashboard.ProductionRateChart[i];
+                                productionWorksheet.Cells[i + 2, 1].Value = data.Period;
+                                productionWorksheet.Cells[i + 2, 2].Value = data.ProductionRate;
+                            }
+                            
+                            productionWorksheet.Cells[productionWorksheet.Dimension.Address].AutoFitColumns();
+                        }
+                        else
+                        {
+                            var noDataWorksheet = package.Workbook.Worksheets.Add("Production Rate");
+                            noDataWorksheet.Cells[1, 1].Value = "No production rate data available";
+                        }
+                        
+                        // Maintenance cost worksheet
+                        if (dashboard.MaintenanceCostChart.Any())
+                        {
+                            var maintenanceWorksheet = package.Workbook.Worksheets.Add("Maintenance Cost");
+                            maintenanceWorksheet.Cells[1, 1].Value = "Period";
+                            maintenanceWorksheet.Cells[1, 2].Value = "Maintenance Cost ($)";
+                            
+                            // Style header row
+                            maintenanceWorksheet.Cells[1, 1].Style.Font.Bold = true;
+                            maintenanceWorksheet.Cells[1, 2].Style.Font.Bold = true;
+                            
+                            // Add maintenance cost data
+                            for (int i = 0; i < dashboard.MaintenanceCostChart.Count; i++)
+                            {
+                                var data = dashboard.MaintenanceCostChart[i];
+                                maintenanceWorksheet.Cells[i + 2, 1].Value = data.Period;
+                                maintenanceWorksheet.Cells[i + 2, 2].Value = data.Cost;
+                            }
+                            
+                            maintenanceWorksheet.Cells[maintenanceWorksheet.Dimension.Address].AutoFitColumns();
+                        }
+                        else
+                        {
+                            var noDataWorksheet = package.Workbook.Worksheets.Add("Maintenance Cost");
+                            noDataWorksheet.Cells[1, 1].Value = "No maintenance cost data available";
+                        }
+                        
+                        // Region distribution worksheet
+                        if (dashboard.RegionDistribution.Any())
+                        {
+                            var regionWorksheet = package.Workbook.Worksheets.Add("Region Distribution");
+                            regionWorksheet.Cells[1, 1].Value = "Region";
+                            regionWorksheet.Cells[1, 2].Value = "Field Count";
+                            
+                            // Style header row
+                            regionWorksheet.Cells[1, 1].Style.Font.Bold = true;
+                            regionWorksheet.Cells[1, 2].Style.Font.Bold = true;
+                            
+                            // Add region distribution data
+                            for (int i = 0; i < dashboard.RegionDistribution.Count; i++)
+                            {
+                                var data = dashboard.RegionDistribution[i];
+                                regionWorksheet.Cells[i + 2, 1].Value = data.RegionName;
+                                regionWorksheet.Cells[i + 2, 2].Value = data.FieldCount;
+                            }
+                            
+                            regionWorksheet.Cells[regionWorksheet.Dimension.Address].AutoFitColumns();
+                        }
+                        else
+                        {
+                            var noDataWorksheet = package.Workbook.Worksheets.Add("Region Distribution");
+                            noDataWorksheet.Cells[1, 1].Value = "No region distribution data available";
+                        }
+                        
+                        package.Save();
                     }
                     
-                    // Add field data
-                    for (int i = 0; i < dashboard.FieldData.Count; i++)
-                    {
-                        var field = dashboard.FieldData[i];
-                        fieldWorksheet.Cells[i + 2, 1].Value = field.FieldName;
-                        fieldWorksheet.Cells[i + 2, 2].Value = field.Latitude;
-                        fieldWorksheet.Cells[i + 2, 3].Value = field.Longitude;
-                        fieldWorksheet.Cells[i + 2, 4].Value = field.ProductionRate;
-                        fieldWorksheet.Cells[i + 2, 5].Value = field.MaintenanceCost;
-                    }
-                    
-                    fieldWorksheet.Cells[fieldWorksheet.Dimension.Address].AutoFitColumns();
-                    
-                    // Production rate worksheet
-                    var productionWorksheet = package.Workbook.Worksheets.Add("Production Rate");
-                    productionWorksheet.Cells[1, 1].Value = "Period";
-                    productionWorksheet.Cells[1, 2].Value = "Production Rate (bbl/day)";
-                    
-                    // Style header row
-                    productionWorksheet.Cells[1, 1].Style.Font.Bold = true;
-                    productionWorksheet.Cells[1, 2].Style.Font.Bold = true;
-                    
-                    // Add production rate data
-                    for (int i = 0; i < dashboard.ProductionRateChart.Count; i++)
-                    {
-                        var data = dashboard.ProductionRateChart[i];
-                        productionWorksheet.Cells[i + 2, 1].Value = data.Period;
-                        productionWorksheet.Cells[i + 2, 2].Value = data.ProductionRate;
-                    }
-                    
-                    productionWorksheet.Cells[productionWorksheet.Dimension.Address].AutoFitColumns();
-                    
-                    // Maintenance cost worksheet
-                    var maintenanceWorksheet = package.Workbook.Worksheets.Add("Maintenance Cost");
-                    maintenanceWorksheet.Cells[1, 1].Value = "Period";
-                    maintenanceWorksheet.Cells[1, 2].Value = "Maintenance Cost ($)";
-                    
-                    // Style header row
-                    maintenanceWorksheet.Cells[1, 1].Style.Font.Bold = true;
-                    maintenanceWorksheet.Cells[1, 2].Style.Font.Bold = true;
-                    
-                    // Add maintenance cost data
-                    for (int i = 0; i < dashboard.MaintenanceCostChart.Count; i++)
-                    {
-                        var data = dashboard.MaintenanceCostChart[i];
-                        maintenanceWorksheet.Cells[i + 2, 1].Value = data.Period;
-                        maintenanceWorksheet.Cells[i + 2, 2].Value = data.Cost;
-                    }
-                    
-                    maintenanceWorksheet.Cells[maintenanceWorksheet.Dimension.Address].AutoFitColumns();
-                    
-                    // Region distribution worksheet
-                    var regionWorksheet = package.Workbook.Worksheets.Add("Region Distribution");
-                    regionWorksheet.Cells[1, 1].Value = "Region";
-                    regionWorksheet.Cells[1, 2].Value = "Field Count";
-                    
-                    // Style header row
-                    regionWorksheet.Cells[1, 1].Style.Font.Bold = true;
-                    regionWorksheet.Cells[1, 2].Style.Font.Bold = true;
-                    
-                    // Add region distribution data
-                    for (int i = 0; i < dashboard.RegionDistribution.Count; i++)
-                    {
-                        var data = dashboard.RegionDistribution[i];
-                        regionWorksheet.Cells[i + 2, 1].Value = data.RegionName;
-                        regionWorksheet.Cells[i + 2, 2].Value = data.FieldCount;
-                    }
-                    
-                    regionWorksheet.Cells[regionWorksheet.Dimension.Address].AutoFitColumns();
-                    
-                    package.Save();
+                    return memoryStream.ToArray();
                 }
-                
-                return memoryStream.ToArray();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error generating Excel report: {ex.Message}", ex);
             }
         }
     }

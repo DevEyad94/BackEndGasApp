@@ -17,6 +17,7 @@
     <PackageReference Include="EPPlus" Version="8.0.3" />
     <PackageReference Include="IronSoftware.System.Drawing" Version="2025.3.6" />
     <PackageReference Include="itext7" Version="9.1.0" />
+    <PackageReference Include="itext7.bouncy-castle-adapter" Version="9.1.0" />
     <PackageReference Include="LazZiya.ImageResize" Version="4.1.4" />
     <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="14.5.0" />
     <PackageReference Include="Magick.NET.Core" Version="14.5.0" />
