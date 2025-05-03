@@ -13,6 +13,7 @@ using BackEndGasApp.Constants;
 using BackEndGasApp.Converters;
 using BackEndGasApp.Helpers;
 using BackEndGasApp.Services.DatabaseService;
+using BackEndGasApp.Services.DashboardService;
 using BackEndGasApp.Services.GasService;
 using BackEndGasApp.Services.UserService;
 using BackEndGasApp.Services.ZskService;
@@ -147,6 +148,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IDatabaseService, DatabaseService>();
 builder.Services.AddScoped<IZskService, ZskService>();
 builder.Services.AddScoped<IGasService, GasService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 builder.Services.AddHttpContextAccessor();
 
