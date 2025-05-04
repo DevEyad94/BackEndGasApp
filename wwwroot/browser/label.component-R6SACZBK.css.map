@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/shared/components/label/label.component.scss", "src/app/shared/components/label/label.component.scss"],
+  "sourcesContent": ["label {\n  display: block;\n\n  span {\n    color: #e53e3e; // Red color for the required asterisk\n  }\n}\n", "label {\n  display: block;\n}\nlabel span {\n  color: #e53e3e;\n}\n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJmaWxlOi8vL1VzZXJzL2V5YWQuYWxoYW16YS5sb2NhbC9Eb2N1bWVudHMvUHJvamVjdHMvUGVyc29uYWwlMjBQcm9qZWN0cy9PaWxBbmRHYXMvRnJvbnRFbmRHYXNBcHAvc3JjL2FwcC9zaGFyZWQvY29tcG9uZW50cy9sYWJlbC9sYWJlbC5jb21wb25lbnQuc2NzcyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQTtFQUNFOztBQUVBO0VBQ0UiLCJzb3VyY2VzQ29udGVudCI6WyJsYWJlbCB7XG4gIGRpc3BsYXk6IGJsb2NrO1xuXG4gIHNwYW4ge1xuICAgIGNvbG9yOiAjZTUzZTNlOyAvLyBSZWQgY29sb3IgZm9yIHRoZSByZXF1aXJlZCBhc3Rlcmlza1xuICB9XG59XG4iXX0= */"],
+  "mappings": "AAAA,MACE,QAAA,KCCF,CDCE,MAAA,KACE,MAAA,OCCJ",
+  "names": []
+}

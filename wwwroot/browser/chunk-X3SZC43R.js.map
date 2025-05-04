@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/environments/environment.prod.ts"],
+  "sourcesContent": ["export const environment = {\n  production: true,\n  apiUrl: 'api/', // Change this to your production API URL when deploying\n  googleMapsApiKey: \"AIzaSyAvVbOyNQdpVak7Al9E1g9IF6jrGzu9hhI\",\n};\n"],
+  "mappings": "AAAO,IAAMA,EAAc,CACzBC,WAAY,GACZC,OAAQ,OACRC,iBAAkB",
+  "names": ["environment", "production", "apiUrl", "googleMapsApiKey"]
+}

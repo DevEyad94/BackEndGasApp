@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/components/dashboard/dashboard.component.scss", "src/app/components/dashboard/dashboard.component.scss"],
+  "sourcesContent": ["/* Custom styles for dashboard */\ncanvas {\n  width: 100% !important;\n  height: 100% !important;\n}\n\n.dark {\n  canvas {\n    filter: brightness(0.9);\n  }\n}\n", "/* Custom styles for dashboard */\ncanvas {\n  width: 100% !important;\n  height: 100% !important;\n}\n\n.dark canvas {\n  filter: brightness(0.9);\n}\n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJmaWxlOi8vL1VzZXJzL2V5YWQuYWxoYW16YS5sb2NhbC9Eb2N1bWVudHMvUHJvamVjdHMvUGVyc29uYWwlMjBQcm9qZWN0cy9PaWxBbmRHYXMvRnJvbnRFbmRHYXNBcHAvc3JjL2FwcC9jb21wb25lbnRzL2Rhc2hib2FyZC9kYXNoYm9hcmQuY29tcG9uZW50LnNjc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7QUFDQTtFQUNFO0VBQ0E7OztBQUlBO0VBQ0UiLCJzb3VyY2VzQ29udGVudCI6WyIvKiBDdXN0b20gc3R5bGVzIGZvciBkYXNoYm9hcmQgKi9cbmNhbnZhcyB7XG4gIHdpZHRoOiAxMDAlICFpbXBvcnRhbnQ7XG4gIGhlaWdodDogMTAwJSAhaW1wb3J0YW50O1xufVxuXG4uZGFyayB7XG4gIGNhbnZhcyB7XG4gICAgZmlsdGVyOiBicmlnaHRuZXNzKDAuOSk7XG4gIH1cbn1cbiJdfQ== */"],
+  "mappings": "AACA,OACE,MAAA,eACA,OAAA,cCCF,CDGE,CAAA,KAAA,OACE,OAAA,WAAA,GCAJ",
+  "names": []
+}
