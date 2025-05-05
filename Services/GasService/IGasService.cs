@@ -24,6 +24,7 @@ namespace BackEndGasApp.Services.GasService
         Task<ServiceResponse<GetFieldMaintenanceDto>> AddFieldMaintenance(AddFieldMaintenanceDto newFieldMaintenance);
         Task<ServiceResponse<GetFieldMaintenanceDto>> UpdateFieldMaintenance(UpdateFieldMaintenanceDto updateFieldMaintenance);
         Task<ServiceResponse<List<GetFieldMaintenanceDto>>> DeleteFieldMaintenance(Guid id);
+        Task<ServiceResponse<List<YearDisabledMonthsDto>>> GetFieldMaintenanceDisabledMonths(int? fieldId = null);
 
         // Production Record operations
         Task<ServiceResponse<PagedList<GetProductionRecordDto>>> GetAllProductionRecords(Pagination pagination);
