@@ -232,13 +232,25 @@ namespace BackEndGasApp.Services.GasService
 
             if (fieldMaintenanceFilter.StartDate.HasValue)
             {
-                var startDate = fieldMaintenanceFilter.StartDate.Value.ToUniversalTime();
+                // Get just the date part by creating a new DateTime with just year, month and day
+                var startDate = new DateTime(
+                    fieldMaintenanceFilter.StartDate.Value.Year,
+                    fieldMaintenanceFilter.StartDate.Value.Month,
+                    fieldMaintenanceFilter.StartDate.Value.Day,
+                    0, 0, 0, DateTimeKind.Utc
+                );
                 query = query.Where(e => e.FieldMaintenanceDate >= startDate);
             }
 
             if (fieldMaintenanceFilter.EndDate.HasValue)
             {
-                var endDate = fieldMaintenanceFilter.EndDate.Value.ToUniversalTime().AddDays(1);
+                // Get the end of the day for the end date
+                var endDate = new DateTime(
+                    fieldMaintenanceFilter.EndDate.Value.Year,
+                    fieldMaintenanceFilter.EndDate.Value.Month,
+                    fieldMaintenanceFilter.EndDate.Value.Day,
+                    23, 59, 59, DateTimeKind.Utc
+                ).AddDays(1);
                 query = query.Where(e => e.FieldMaintenanceDate < endDate);
             }
 
@@ -509,24 +521,34 @@ namespace BackEndGasApp.Services.GasService
             if (productionRecordFilter.Year.HasValue)
             {
                 int year = productionRecordFilter.Year.Value;
-                var startDate = new DateTime(year, 1, 1).ToUniversalTime();
-                var endDate = new DateTime(year + 1, 1, 1).ToUniversalTime();
-                query = query.Where(e =>
-                    e.DateOfProduction >= startDate && e.DateOfProduction < endDate
-                );
+                var startDate = new DateTime(year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                var endDate = new DateTime(year + 1, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                query = query.Where(e => e.DateOfProduction >= startDate && e.DateOfProduction < endDate);
             }
             else
             {
                 // Apply date range filters if year is not specified
                 if (productionRecordFilter.StartDate.HasValue)
                 {
-                    var startDate = productionRecordFilter.StartDate.Value.ToUniversalTime();
+                    // Get just the date part by creating a new DateTime with just year, month and day
+                    var startDate = new DateTime(
+                        productionRecordFilter.StartDate.Value.Year,
+                        productionRecordFilter.StartDate.Value.Month,
+                        productionRecordFilter.StartDate.Value.Day,
+                        0, 0, 0, DateTimeKind.Utc
+                    );
                     query = query.Where(e => e.DateOfProduction >= startDate);
                 }
 
                 if (productionRecordFilter.EndDate.HasValue)
                 {
-                    var endDate = productionRecordFilter.EndDate.Value.ToUniversalTime().AddDays(1);
+                    // Get the end of the day for the end date
+                    var endDate = new DateTime(
+                        productionRecordFilter.EndDate.Value.Year,
+                        productionRecordFilter.EndDate.Value.Month,
+                        productionRecordFilter.EndDate.Value.Day,
+                        23, 59, 59, DateTimeKind.Utc
+                    ).AddDays(1);
                     query = query.Where(e => e.DateOfProduction < endDate);
                 }
             }
