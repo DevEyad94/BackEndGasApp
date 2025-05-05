@@ -297,27 +297,17 @@ namespace BackEndGasApp.Services.GasService
                 return serviceResponse;
             }
 
-            // Add 8 hours and ensure UTC for the new date
-            var adjustedNewDate = DateTime.SpecifyKind(
-                updateFieldMaintenance.FieldMaintenanceDate.AddHours(8),
-                DateTimeKind.Utc
-            );
-
-            // Check if the month is being changed
-            if (existingEntity.FieldMaintenanceDate.Year != adjustedNewDate.Year ||
-                existingEntity.FieldMaintenanceDate.Month != adjustedNewDate.Month)
-            {
-                serviceResponse.Success = false;
-                serviceResponse.Message = "Cannot change the month of an existing field maintenance record.";
-                return serviceResponse;
-            }
+            // Store the original date
+            var originalDate = existingEntity.FieldMaintenanceDate;
 
             existingEntity.UpdatedBy = currentUserId;
             existingEntity.UpdatedAt = DateTime.UtcNow;
 
             // Map DTO to entity, preserving the ID and audit fields
             mapper.Map(updateFieldMaintenance, existingEntity);
-            existingEntity.FieldMaintenanceDate = adjustedNewDate;
+
+            // Restore the original date
+            existingEntity.FieldMaintenanceDate = originalDate;
 
             context.Entry(existingEntity).State = EntityState.Modified;
 
@@ -601,27 +591,17 @@ namespace BackEndGasApp.Services.GasService
                 return serviceResponse;
             }
 
-            // Add 8 hours and ensure UTC for the new date
-            var adjustedNewDate = DateTime.SpecifyKind(
-                updateProductionRecord.DateOfProduction.AddHours(8),
-                DateTimeKind.Utc
-            );
-
-            // Check if the month is being changed
-            if (existingEntity.DateOfProduction.Year != adjustedNewDate.Year ||
-                existingEntity.DateOfProduction.Month != adjustedNewDate.Month)
-            {
-                serviceResponse.Success = false;
-                serviceResponse.Message = "Cannot change the month of an existing production record.";
-                return serviceResponse;
-            }
+            // Store the original date
+            var originalDate = existingEntity.DateOfProduction;
 
             existingEntity.UpdatedBy = currentUserId;
             existingEntity.UpdatedAt = DateTime.UtcNow;
 
             // Map DTO to entity, preserving the ID and audit fields
             mapper.Map(updateProductionRecord, existingEntity);
-            existingEntity.DateOfProduction = adjustedNewDate;
+
+            // Restore the original date
+            existingEntity.DateOfProduction = originalDate;
 
             context.Entry(existingEntity).State = EntityState.Modified;
 
