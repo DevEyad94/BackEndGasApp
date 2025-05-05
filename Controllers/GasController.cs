@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BackEndGasApp.Constants;
+using BackEndGasApp.Dtos.Common;
 using BackEndGasApp.Dtos.FieldMaintenance;
 using BackEndGasApp.Dtos.ProductionRecord;
 using BackEndGasApp.Extensions.Filters;
@@ -270,5 +271,16 @@ namespace BackEndGasApp.Controllers
         }
 
         #endregion
+
+        [HttpGet("years")]
+        [Authorize(Policy = Policies.AdminEngineerPolicy)]
+        public async Task<ActionResult<ServiceResponse<List<YearDto>>>> GetAvailableYears()
+        {
+            var result = await _gasService.GetAvailableYears();
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
     }
 }

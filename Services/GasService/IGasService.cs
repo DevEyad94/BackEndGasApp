@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using BackEndGasApp.Extensions.Filters;
 using BackEndGasApp.Dtos.FieldMaintenance;
 using BackEndGasApp.Dtos.ProductionRecord;
+using BackEndGasApp.Dtos.Common;
 
 namespace BackEndGasApp.Services.GasService
 {
@@ -42,5 +43,8 @@ namespace BackEndGasApp.Services.GasService
         
         // New method to get years with their disabled months
         Task<ServiceResponse<List<YearDisabledMonthsDto>>> GetDisabledMonths(int? fieldId = null);
+
+        // New method to get available years
+        Task<ServiceResponse<List<YearDto>>> GetAvailableYears();
     }
 }

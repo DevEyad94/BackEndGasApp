@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using AutoMapper.QueryableExtensions;
 using BackEndGasApp.Attributes;
 using BackEndGasApp.Constants;
+using BackEndGasApp.Dtos.Common;
 using BackEndGasApp.Dtos.FieldMaintenance;
 using BackEndGasApp.Dtos.ProductionRecord;
 using BackEndGasApp.Extensions;
@@ -866,5 +867,41 @@ namespace BackEndGasApp.Services.GasService
             return query.Provider.CreateQuery<T>(resultExpression);
         }
         #endregion
+
+        public async Task<ServiceResponse<List<YearDto>>> GetAvailableYears()
+        {
+            var serviceResponse = new ServiceResponse<List<YearDto>>();
+
+            try
+            {
+                // Get years from field maintenance records
+                var maintenanceYears = await context.FieldMaintenances
+                    .Select(fm => fm.FieldMaintenanceDate.Year)
+                    .Distinct()
+                    .ToListAsync();
+
+                // Get years from production records
+                var productionYears = await context.ProductionRecords
+                    .Select(pr => pr.DateOfProduction.Year)
+                    .Distinct()
+                    .ToListAsync();
+
+                // Combine and deduplicate years
+                var allYears = maintenanceYears.Union(productionYears)
+                    .OrderByDescending(y => y)
+                    .Select(y => new YearDto { Year = y })
+                    .ToList();
+
+                serviceResponse.Data = allYears;
+                serviceResponse.Success = true;
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = ex.Message;
+            }
+
+            return serviceResponse;
+        }
     }
 }
