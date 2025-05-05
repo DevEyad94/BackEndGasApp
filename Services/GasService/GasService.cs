@@ -321,12 +321,35 @@ namespace BackEndGasApp.Services.GasService
                 .HttpContext?.User?.FindFirst(ClaimTypes.UserData)
                 ?.Value;
 
+            // Add 8 hours and ensure UTC
+            var adjustedDate = DateTime.SpecifyKind(
+                newProductionRecord.DateOfProduction.AddHours(8),
+                DateTimeKind.Utc
+            );
+            
+            // Create the start and end of month in UTC
+            var startOfMonth = new DateTime(adjustedDate.Year, adjustedDate.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+            var endOfMonth = startOfMonth.AddMonths(1);
+
+            var existingRecord = await context.ProductionRecords
+                .AnyAsync(p => 
+                    p.zFieldId == newProductionRecord.zFieldId &&
+                    p.DateOfProduction >= startOfMonth &&
+                    p.DateOfProduction < endOfMonth
+                );
+
+            if (existingRecord)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = $"A production record already exists for {adjustedDate:MMMM yyyy} for this field.";
+                return serviceResponse;
+            }
+
             // Map DTO to entity
             var productionRecordEntity = mapper.Map<ProductionRecord>(newProductionRecord);
 
-            // Convert DateTime properties to UTC
-            productionRecordEntity.DateOfProduction =
-                newProductionRecord.DateOfProduction.ToUniversalTime();
+            // Set the date with the 8-hour adjustment and UTC kind
+            productionRecordEntity.DateOfProduction = adjustedDate;
             productionRecordEntity.CreatedBy = currentUserId;
 
             databaseService.add(productionRecordEntity);
