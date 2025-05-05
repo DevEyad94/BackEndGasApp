@@ -57,12 +57,35 @@ namespace BackEndGasApp.Services.GasService
                 .HttpContext?.User?.FindFirst(ClaimTypes.UserData)
                 ?.Value;
 
+            // Add 8 hours and ensure UTC
+            var adjustedDate = DateTime.SpecifyKind(
+                newFieldMaintenance.FieldMaintenanceDate.AddHours(8),
+                DateTimeKind.Utc
+            );
+            
+            // Create the start and end of month in UTC
+            var startOfMonth = new DateTime(adjustedDate.Year, adjustedDate.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+            var endOfMonth = startOfMonth.AddMonths(1);
+
+            var existingRecord = await context.FieldMaintenances
+                .AnyAsync(p => 
+                    p.zFieldId == newFieldMaintenance.zFieldId &&
+                    p.FieldMaintenanceDate >= startOfMonth &&
+                    p.FieldMaintenanceDate < endOfMonth
+                );
+
+            if (existingRecord)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = $"A field maintenance record already exists for {adjustedDate:MMMM yyyy} for this field.";
+                return serviceResponse;
+            }
+
             // Map DTO to entity
             var fieldMaintenanceEntity = mapper.Map<FieldMaintenance>(newFieldMaintenance);
 
             // Convert DateTime properties to UTC
-            fieldMaintenanceEntity.FieldMaintenanceDate =
-                newFieldMaintenance.FieldMaintenanceDate.ToUniversalTime();
+            fieldMaintenanceEntity.FieldMaintenanceDate = adjustedDate;
             fieldMaintenanceEntity.CreatedBy = currentUserId;
 
             databaseService.add(fieldMaintenanceEntity);
