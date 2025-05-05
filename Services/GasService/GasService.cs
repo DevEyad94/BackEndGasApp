@@ -595,6 +595,50 @@ namespace BackEndGasApp.Services.GasService
                 Map(m => m.zFieldId);
             }
         }
+        
+        public async Task<ServiceResponse<List<YearDisabledMonthsDto>>> GetDisabledMonths(int? fieldId = null)
+        {
+            var serviceResponse = new ServiceResponse<List<YearDisabledMonthsDto>>();
+            
+            try
+            {
+                // Query to get all production records, optionally filtered by field
+                var query = context.ProductionRecords.AsQueryable();
+                if (fieldId.HasValue)
+                {
+                    query = query.Where(p => p.zFieldId == fieldId.Value);
+                }
+                
+                // Group by year and month to find months with existing records
+                var existingRecords = await query
+                    .Select(p => new 
+                    { 
+                        Year = p.DateOfProduction.Year, 
+                        Month = p.DateOfProduction.Month - 1 // Convert to 0-based month index (0-11)
+                    })
+                    .Distinct()
+                    .ToListAsync();
+                
+                // Group by year
+                var groupedByYear = existingRecords
+                    .GroupBy(r => r.Year)
+                    .Select(g => new YearDisabledMonthsDto
+                    {
+                        Year = g.Key,
+                        DisabledMonths = g.Select(x => x.Month).ToList()
+                    })
+                    .ToList();
+                
+                serviceResponse.Data = groupedByYear;
+                return serviceResponse;
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = $"Error retrieving disabled months: {ex.Message}";
+                return serviceResponse;
+            }
+        }
         #endregion
 
         #region Helper Methods

@@ -241,6 +241,17 @@ namespace BackEndGasApp.Controllers
             return Ok(result);
         }
 
+        [HttpGet("productionrecord/disabledmonths")]
+        [Authorize(Policy = Policies.AdminOperatorPolicy)]
+        public async Task<ActionResult<ServiceResponse<List<YearDisabledMonthsDto>>>> GetDisabledMonths([FromQuery] int? fieldId = null)
+        {
+            var result = await _gasService.GetDisabledMonths(fieldId);
+            if (!result.Success)
+                return BadRequest(result);
+                
+            return Ok(result);
+        }
+
         #endregion
     }
 }

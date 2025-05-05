@@ -38,5 +38,8 @@ namespace BackEndGasApp.Services.GasService
         Task<ServiceResponse<GetProductionRecordDto>> UpdateProductionRecord(UpdateProductionRecordDto updateProductionRecord);
         Task<ServiceResponse<List<GetProductionRecordDto>>> DeleteProductionRecord(Guid id);
         Task<ServiceResponse<int>> ImportProductionRecordsFromCsv(IFormFile csvFile);
+        
+        // New method to get years with their disabled months
+        Task<ServiceResponse<List<YearDisabledMonthsDto>>> GetDisabledMonths(int? fieldId = null);
     }
 }
